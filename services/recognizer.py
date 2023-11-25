@@ -2,10 +2,10 @@ from easyocr import Reader
 
 
 class recognizer:
-    def __init__(self, LOGGER):
-        self.LOGGER = LOGGER
+    def __init__(self, messenger):
+        self.messenger = messenger
         self.reader = Reader(["ko", "en"], gpu=False)
 
     def run(self, frame):
         result = self.reader.readtext(frame, detail=0)
-        self.LOGGER.info(result)
+        self.messenger.info(result)

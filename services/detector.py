@@ -1,9 +1,10 @@
 import torch
+from labels import labels
 
 
 class detector:
-    def __init__(self, LOGGER):
-        self.LOGGER = LOGGER
+    def __init__(self, messenger):
+        self.messenger = messenger
         self.model = torch.hub.load(
             "./yolov5",
             "custom",
@@ -45,11 +46,11 @@ class detector:
             imageSplit = imageWidth / 3
 
             if xCenter < imageSplit:
-                bboxCoords["position"] = 0  # 왼쪽
+                bboxCoords["position"] = "left"
             elif xCenter < imageSplit * 2:
-                bboxCoords["position"] = 1  # 중앙
+                bboxCoords["position"] = "center"
             elif xCenter < imageSplit * 3:
-                bboxCoords["position"] = 2  # 오른쪽
+                bboxCoords["position"] = "right"
             else:
                 bboxCoords["position"] = -1
 
@@ -60,6 +61,7 @@ class detector:
             bboxRatio = (bboxArea / imageArea) * 100  # 퍼센트로 표현
 
             bboxCoords["ratio"] = bboxRatio
+            bboxCoords["labelName"] = labels[int(label)]
 
             annos.append(bboxCoords)
 
@@ -79,4 +81,4 @@ class detector:
 
         results = self.resultParser(params)
 
-        self.LOGGER.info(results)
+        self.messenger.info(results)

@@ -2,9 +2,10 @@ from services.classificator import *
 from services.detector import *
 from services.recognizer import *
 
+from messenger import messenger
+
 import cv2
 import time
-import logging
 import threading
 from datetime import datetime
 from keyboard import read_key
@@ -16,13 +17,7 @@ class app:
         self.service = None
         self.exit = False
 
-        self.startTime = int(str(datetime.now().timestamp()).split(".")[0])
-
-        logging.basicConfig(
-            level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-        )
-
-        self.LOGGER = logging.getLogger()
+        self.messenger = messenger()
 
     def keyCapture(self):
         while True:
@@ -31,44 +26,44 @@ class app:
                 self.service = None
 
                 if key == 8:  # key c
-                    self.LOGGER.info("classificator")
+                    self.messenger.info("classificator")
                     if self.services["classificator"] is None:
-                        self.services["classificator"] = classificator(self.LOGGER)
+                        self.services["classificator"] = classificator(self.messenger)
                     self.service = "classificator"
 
                 if key == 2:  # key d
-                    self.LOGGER.info("detector")
+                    self.messenger.info("detector")
                     if self.services["detector"] is None:
-                        self.services["detector"] = detector(self.LOGGER)
+                        self.services["detector"] = detector(self.messenger)
                     self.service = "detector"
 
                 if key == 15:  # key r
-                    self.LOGGER.info("recognizer")
+                    self.messenger.info("recognizer")
                     if self.services["recognizer"] is None:
-                        self.services["recognizer"] = recognizer(self.LOGGER)
+                        self.services["recognizer"] = recognizer(self.messenger)
                     self.service = "recognizer"
 
                 if key == 12:  # key q
-                    self.LOGGER.info("exit")
+                    self.messenger.info("exit")
                     self.exit = True
 
                 time.sleep(0.1)
             except Exception as e:
-                self.LOGGER.error(e)
+                self.messenger.error(e)
 
     def main(self):
+        self.messenger.info("Starting...")
+
         cap = cv2.VideoCapture(0)
+        self.messenger.info("Camera started")
 
         while True:
             if self.exit:
                 break
 
-            now = int(str(datetime.now().timestamp()).split(".")[0])
             _, frame = cap.read()
 
             if self.service is not None:
-                if self.service == "recognizer" and (now - self.startTime) % 3 != 0:
-                    continue
                 self.services[self.service].run(frame)
 
         cap.release()
