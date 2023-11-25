@@ -39,8 +39,9 @@ class messenger:
 
         elif caller == "detector":
             for data in msg:
-                if data["labelName"] in printLabels:
-                    self.tts(f"{data['labelName']} {data['position']}")
+                if data["conf"] > 0.6:
+                    if data["labelName"] in printLabels:
+                        self.tts(f"{data['labelName']} {data['position']}")
 
         elif caller == "recognizer":
             if msg == []:
