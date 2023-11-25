@@ -59,8 +59,11 @@ class messenger:
                 en += " "
                 ko += " "
 
-            self.tts(en, "en")
-            self.tts(ko, "ko")
+            if en.strip() != "":
+                self.tts(en, "en")
+
+            if ko.strip() != "":
+                self.tts(ko, "ko")
 
     def tts(self, msg, lang="en"):
         tts = gTTS(text=msg, lang=lang)
