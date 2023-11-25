@@ -27,13 +27,13 @@ class messenger:
         else:
             caller = caller.split(".")[-1]
 
-        self.LOGGER.info(msg)
-        self.say(msg, caller)
+        self.LOGGER.info(f"{caller} - {msg}")
+        self.processing(msg, caller)  # Processing data by caller
 
     def error(self, msg):
         self.LOGGER.error(msg)
 
-    def say(self, msg, caller):
+    def processing(self, msg, caller):
         if caller == "main":
             self.tts(msg)
 
@@ -41,6 +41,7 @@ class messenger:
             for data in msg:
                 if data["conf"] > 0.6:
                     if data["labelName"] in printLabels:
+                        self.LOGGER.info(f"{data['labelName']} {data['position']}")
                         self.tts(f"{data['labelName']} {data['position']}")
 
         elif caller == "recognizer":
@@ -65,6 +66,9 @@ class messenger:
 
             if ko.strip() != "":
                 self.tts(ko, "ko")
+
+        elif caller == "classificator":
+            self.tts(msg)
 
     def tts(self, msg, lang="en"):
         tts = gTTS(text=msg, lang=lang)
