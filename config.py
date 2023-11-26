@@ -1,5 +1,8 @@
+import os
 import torchvision.transforms as transforms
 from classificatorCNN import CustomClassifier
+
+root = os.getcwd()
 
 config = {
     "translate": True,
@@ -9,7 +12,7 @@ config = {
         "height": 256,
     },
     "detector": {
-        "model": "./models/detector.pt",
+        "model": os.path.join(root, "models", "detector.pth"),
         "labels": [
             "tree",
             "car",
@@ -51,7 +54,7 @@ config = {
         ],
     },
     "classificator": {
-        "model": "./models/classificator.pth",
+        "model": os.path.join(root, "models", "classificator.pth"),
         "class": ["road", "wall"],
         "transform": transforms.Compose(
             [
