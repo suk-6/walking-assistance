@@ -1,5 +1,5 @@
 import os
-import ctypes
+import time
 import inspect
 import logging
 from glob import glob
@@ -117,10 +117,12 @@ class messenger:
 
         return self.playbacks[-1].is_playing()
 
-    def waitDone(self):
+    def waitDone(self, wait=None):
         if self.isPlaying():
-            self.playbacks[-1].wait_done()
-            self.playbacks = []
+            if wait is not None:
+                time.sleep(wait)
+                self.playbacks[-1].wait_done()
+                self.playbacks = []
 
     def forceStop(self):
         if self.isPlaying():

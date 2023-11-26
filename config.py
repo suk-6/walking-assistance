@@ -3,6 +3,11 @@ from classificatorCNN import CustomClassifier
 
 config = {
     "translate": True,
+    "camera": {
+        "device": 0,
+        "width": 256,
+        "height": 256,
+    },
     "detector": {
         "model": "./models/detector.pt",
         "labels": [

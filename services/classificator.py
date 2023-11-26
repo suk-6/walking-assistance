@@ -29,12 +29,8 @@ class classificator:
             frame = self.transform(frame).unsqueeze(0)
 
             prediction = self.getPrediction(frame)
-            prediction = (
-                self.config["classificator"]["class"][1]
-                if prediction > 0.5
-                else self.config["classificator"]["class"][0]
-            )
+            if prediction > 0.5:
+                self.messenger.info(self.config["classificator"]["class"][1])
 
-            self.messenger.info(prediction)
         except Exception as e:
             self.messenger.error(e)

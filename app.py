@@ -22,6 +22,7 @@ class app:
         self.services = []
 
         self.cameraStarted = False
+        self.isExit = False
 
         self.messenger = messenger(config)
 
@@ -77,11 +78,14 @@ class app:
         self.messenger.info("Starting...")
 
         self.cap = cv2.VideoCapture(0)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, config["camera"]["width"])
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config["camera"]["height"])
         self.cameraStarted = True
         self.messenger.info("Camera started")
 
-        while True:
+        while not self.isExit:
             _, frame = self.cap.read()
+            cv2.imshow("Inference", frame)
 
             if self.services != []:
                 for service in self.services:
@@ -92,8 +96,11 @@ class app:
         self.main()
 
     def exit(self):
-        self.messenger.info("exit", force=True)
+        self.isExit = True
         self.cap.release()
+        cv2.destroyAllWindows()
+        self.messenger.info("exit")
+        self.messenger.waitDone(0.1)
         exit()
 
 
