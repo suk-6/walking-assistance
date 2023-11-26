@@ -10,6 +10,7 @@ from pydub import AudioSegment
 from pydub.playback import play
 
 from labels import printLabels
+from korean import korean
 
 
 class messenger:
@@ -35,40 +36,53 @@ class messenger:
 
     def processing(self, msg, caller):
         if caller == "main":
-            self.tts(msg)
+            self.ttsPrepare(msg)
 
         elif caller == "detector":
             for data in msg:
                 if data["conf"] > 0.6:
                     if data["labelName"] in printLabels:
                         self.LOGGER.info(f"{data['labelName']} {data['position']}")
-                        self.tts(f"{data['labelName']} {data['position']}")
+                        self.ttsPrepare(f"{data['labelName']} {data['position']}")
 
         elif caller == "recognizer":
             if msg == []:
                 return
 
-            en = ""
-            ko = ""
-
-            for data in msg:
-                for char in data:
-                    if char not in punctuation:
-                        if char.encode().isalpha():
-                            en += char
-                        else:
-                            ko += char
-                en += " "
-                ko += " "
-
-            if en.strip() != "":
-                self.tts(en, "en")
-
-            if ko.strip() != "":
-                self.tts(ko, "ko")
+            self.ttsPrepare("".join(msg))
 
         elif caller == "classificator":
-            self.tts(msg)
+            self.ttsPrepare(msg)
+
+    # Translate English to Korean with punctuation removal
+    def ttsPrepare(self, msg):
+        en = ""
+        ko = ""
+        last = "en"
+
+        # 한글화
+        for word in korean:
+            msg = msg.replace(word, korean[word])
+
+        for char in msg:
+            if char not in punctuation:
+                if char.encode().isalpha():
+                    en += char
+                    last = "en"
+                elif char.isalpha():
+                    ko += char
+                    last = "ko"
+                else:
+                    if last == "en":
+                        en += char
+                    else:
+                        ko += char
+
+        if en.strip() != "":
+            self.tts(en, "en")
+
+        if ko.strip() != "":
+            self.tts(ko, "ko")
 
     def tts(self, msg, lang="en"):
         tts = gTTS(text=msg, lang=lang)

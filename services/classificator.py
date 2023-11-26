@@ -79,7 +79,7 @@ class classificator:
             frame = self.transform(frame).unsqueeze(0)
 
             prediction = self.getPrediction(frame)
-            prediction = "wall" if prediction > 0.5 else "no wall"
+            prediction = "wall" if prediction > 0.5 else "road"
 
             self.messenger.info(prediction)
         except Exception as e:
