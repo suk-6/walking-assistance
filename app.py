@@ -94,7 +94,7 @@ class app:
     def exit(self):
         self.messenger.info("exit", force=True)
         self.cap.release()
-        sys.exit()
+        exit()
 
 
 if __name__ == "__main__":
