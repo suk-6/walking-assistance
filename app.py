@@ -77,7 +77,7 @@ class app:
     def main(self):
         self.messenger.info("Starting...")
 
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(config["camera"]["device"])
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, config["camera"]["width"])
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config["camera"]["height"])
         self.cameraStarted = True
