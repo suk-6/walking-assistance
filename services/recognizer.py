@@ -2,7 +2,7 @@ from easyocr import Reader
 
 
 class recognizer:
-    def __init__(self, messenger):
+    def __init__(self, messenger, config):
         self.messenger = messenger
         self.reader = Reader(["ko", "en"], gpu=False)
 

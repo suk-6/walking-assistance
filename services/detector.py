@@ -67,7 +67,8 @@ class detector:
 
         return annos
 
-    def run(self, frame):
+    def run(self, frame, dual=False):
+        self.dual = dual
         results = self.model(frame)
 
         params = {
@@ -81,4 +82,7 @@ class detector:
 
         results = self.resultParser(params)
 
-        self.messenger.info(results)
+        if self.dual:
+            self.messenger.info(results, force=True)
+        else:
+            self.messenger.info(results)
