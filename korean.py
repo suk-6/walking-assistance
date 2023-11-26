@@ -2,6 +2,7 @@ korean = {
     # Main Menu
     "Starting...": "시작합니다",
     "Camera started": "카메라가 시작되었습니다",
+    "Camera not started": "카메라가 아직 시작되지 않았습니다",
     "exit": "종료합니다",
     # Service Menu
     "detector": "객체 인식",

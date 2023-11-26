@@ -1,35 +1,45 @@
 import os
+import ctypes
 import inspect
 import logging
 from glob import glob
 from io import BytesIO
 
 from gtts import gTTS
+from threading import Thread
 from string import punctuation
 from pydub import AudioSegment
-from pydub.playback import play
+from pydub.playback import _play_with_simpleaudio
 
-from labels import printLabels
 from korean import korean
 
 
 class messenger:
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
+
         logging.basicConfig(
             level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
         )
-
         self.LOGGER = logging.getLogger()
 
-    def info(self, msg):
+        self.playbacks = []
+
+    def info(self, msg, force=False):
         caller = inspect.currentframe().f_back.f_globals["__name__"]
         if caller == "__main__":
             caller = "main"
         else:
             caller = caller.split(".")[-1]
 
-        self.LOGGER.info(f"{caller} - {msg}")
+        if force:
+            self.forceStop()
+
+        self.LOGGER.info(f"{caller}({force}) - {msg}")
         self.processing(msg, caller)  # Processing data by caller
+
+    def warning(self, msg):
+        self.LOGGER.warning(msg)
 
     def error(self, msg):
         self.LOGGER.error(msg)
@@ -41,7 +51,7 @@ class messenger:
         elif caller == "detector":
             for data in msg:
                 if data["conf"] > 0.6:
-                    if data["labelName"] in printLabels:
+                    if data["labelName"] in self.config["detector"]["printLabels"]:
                         self.LOGGER.info(f"{data['labelName']} {data['position']}")
                         self.ttsPrepare(f"{data['labelName']} {data['position']}")
 
@@ -61,8 +71,9 @@ class messenger:
         last = "en"
 
         # 한글화
-        for word in korean:
-            msg = msg.replace(word, korean[word])
+        if self.config["translate"]:
+            for word in korean:
+                msg = msg.replace(word, korean[word])
 
         for char in msg:
             if char not in punctuation:
@@ -92,8 +103,25 @@ class messenger:
         fp.seek(0)
 
         song = AudioSegment.from_file(fp, format="mp3")
-        play(song)
+
+        self.waitDone()
+        self.playbacks.append(_play_with_simpleaudio(song))
 
         fileList = glob("./ffcache*")
         for filePath in fileList:
             os.remove(filePath)
+
+    def isPlaying(self):
+        if self.playbacks == []:
+            return False
+
+        return self.playbacks[-1].is_playing()
+
+    def waitDone(self):
+        if self.isPlaying():
+            self.playbacks[-1].wait_done()
+            self.playbacks = []
+
+    def forceStop(self):
+        if self.isPlaying():
+            self.playbacks[-1].stop()

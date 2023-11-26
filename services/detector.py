@@ -1,14 +1,14 @@
 import torch
-from labels import labels
 
 
 class detector:
-    def __init__(self, messenger):
+    def __init__(self, messenger, config):
         self.messenger = messenger
+        self.config = config
         self.model = torch.hub.load(
             "./yolov5",
             "custom",
-            path="./models/detector.pt",
+            path=config["detector"]["model"],
             source="local",
             force_reload=True,
         )
@@ -61,7 +61,7 @@ class detector:
             bboxRatio = (bboxArea / imageArea) * 100  # 퍼센트로 표현
 
             bboxCoords["ratio"] = bboxRatio
-            bboxCoords["labelName"] = labels[int(label)]
+            bboxCoords["labelName"] = self.config["detector"]["labels"][int(label)]
 
             annos.append(bboxCoords)
 
