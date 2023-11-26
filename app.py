@@ -4,6 +4,7 @@ from services.recognizer import *
 
 from messenger import messenger
 
+import sys
 import cv2
 import time
 import threading
@@ -13,13 +14,29 @@ from keyboard import read_key
 
 class app:
     def __init__(self):
-        self.services = {"classificator": None, "detector": None, "recognizer": None}
-        self.service = None
+        self.serviceObjects = {
+            "classificator": None,
+            "detector": None,
+            "recognizer": None,
+        }
+        self.services = []
 
         self.cameraStarted = False
-        self.exit = False
 
         self.messenger = messenger(config)
+
+    def str2class(self, classname):
+        return getattr(sys.modules[__name__], classname)
+
+    def switchService(self, *services):
+        self.services = []
+        self.messenger.info(" ".join(services))
+        for service in services:
+            if self.serviceObjects[service] is None:
+                self.serviceObjects[service] = self.str2class(service)(
+                    self.messenger, config
+                )
+            self.services.append(service)
 
     def keyCapture(self):
         while True:
@@ -37,28 +54,16 @@ class app:
                     continue
 
                 if key == 8:  # key c
-                    self.messenger.info("classificator")
-                    if self.services["classificator"] is None:
-                        self.services["classificator"] = classificator(
-                            self.messenger, config
-                        )
-                    self.service = "classificator"
+                    self.switchService("classificator", "detector")
 
                 elif key == 2:  # key d
-                    self.messenger.info("detector")
-                    if self.services["detector"] is None:
-                        self.services["detector"] = detector(self.messenger, config)
-                    self.service = "detector"
+                    self.switchService("detector")
 
                 elif key == 15:  # key r
-                    self.messenger.info("recognizer")
-                    if self.services["recognizer"] is None:
-                        self.services["recognizer"] = recognizer(self.messenger)
-                    self.service = "recognizer"
+                    self.switchService("recognizer")
 
                 elif key == 12:  # key q
-                    self.messenger.info("exit", force=True)
-                    self.exit = True
+                    self.exit()
 
                 else:
                     self.messenger.warning("Invalid key")
@@ -71,27 +76,25 @@ class app:
     def main(self):
         self.messenger.info("Starting...")
 
-        cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(0)
         self.cameraStarted = True
         self.messenger.info("Camera started")
 
         while True:
-            if self.exit:
-                while self.messenger.isPlaying():
-                    pass
-                break
+            _, frame = self.cap.read()
 
-            _, frame = cap.read()
-
-            if self.service is not None:
-                self.services[self.service].run(frame)
-
-        cap.release()
-        exit()
+            if self.services != []:
+                for service in self.services:
+                    self.serviceObjects[service].run(frame)
 
     def run(self):
         threading.Thread(target=self.keyCapture, daemon=True).start()
         self.main()
+
+    def exit(self):
+        self.messenger.info("exit", force=True)
+        self.cap.release()
+        sys.exit()
 
 
 if __name__ == "__main__":
