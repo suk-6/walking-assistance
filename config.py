@@ -1,71 +1,114 @@
 import os
+import time
+import pickle
+from keyboard import read_key
 import torchvision.transforms as transforms
 from classificatorCNN import CustomClassifier
 
-root = os.getcwd()
 
-config = {
-    "translate": True,
-    "camera": {
-        "device": 0,
-        "width": 256,
-        "height": 256,
-    },
-    "detector": {
-        "model": os.path.join(root, "models", "detector.pth"),
-        "labels": [
-            "tree",
-            "car",
-            "person",
-            "pole",
-            "fence",
-            "utility_pole",
-            "bollard",
-            "bicycle",
-            "motorcycle",
-            "flower_bed",
-            "dog",
-            "bus_stop",
-            "traffic_cone",
-            "truck",
-            "bench",
-            "bus",
-            "kickboard",
-            "streetlamp",
-            "telephone_booth",
-            "trash",
-            "fire_plug",
-            "plant",
-            "sign_board",
-            "fire_hydrant",
-            "corner",
-            "opened_door",
-            "mailbox",
-            "unknown",
-            "banner",
-        ],
-        "printLabels": [
-            "person",
-            "bollard",
-            "bicycle",
-            "motorcycle",
-            "traffic_cone",
-            "kickboard",
-        ],
-    },
-    "classificator": {
-        "model": os.path.join(root, "models", "classificator.pth"),
-        "class": ["road", "wall"],
-        "transform": transforms.Compose(
-            [
-                transforms.ToPILImage(),
-                transforms.Resize((128, 128)),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+class config:
+    def __init__(self):
+        self.root = os.getcwd()
+        self.config = {
+            "translate": True,
+            "gpu": False,
+            "camera": {
+                "device": 0,
+                "width": 256,
+                "height": 256,
+            },
+            "key": {},
+            "detector": {
+                "model": os.path.join(self.root, "models", "detector.pth"),
+                "labels": [
+                    "tree",
+                    "car",
+                    "person",
+                    "pole",
+                    "fence",
+                    "utility_pole",
+                    "bollard",
+                    "bicycle",
+                    "motorcycle",
+                    "flower_bed",
+                    "dog",
+                    "bus_stop",
+                    "traffic_cone",
+                    "truck",
+                    "bench",
+                    "bus",
+                    "kickboard",
+                    "streetlamp",
+                    "telephone_booth",
+                    "trash",
+                    "fire_plug",
+                    "plant",
+                    "sign_board",
+                    "fire_hydrant",
+                    "corner",
+                    "opened_door",
+                    "mailbox",
+                    "unknown",
+                    "banner",
+                ],
+                "printLabels": [
+                    "person",
+                    "bollard",
+                    "bicycle",
+                    "motorcycle",
+                    "traffic_cone",
+                    "kickboard",
+                ],
+            },
+            "classificator": {
+                "model": os.path.join(self.root, "models", "classificator.pth"),
+                "class": ["road", "wall"],
+                "transform": transforms.Compose(
+                    [
+                        transforms.ToPILImage(),
+                        transforms.Resize((128, 128)),
+                        transforms.ToTensor(),
+                        transforms.Normalize(
+                            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                        ),
+                    ]
                 ),
-            ]
-        ),
-        "cnn": CustomClassifier(),
-    },
-}
+                "cnn": CustomClassifier(),
+            },
+        }
+
+        if self.configLoad() is False:
+            self.configSettings()
+            self.configSave()
+
+    def configSettings(self):
+        self.keySettings()
+
+    def keySettings(self):
+        for key in ["c", "d", "r", "q"]:
+            print(f"\nPress '{key}' to switch classificator and detector")
+            self.config["key"][key] = read_key()
+            time.sleep(0.2)
+
+    def cameraSettings(self):
+        print("\nCamera settings")
+        self.config["camera"]["device"] = int(input("Camera device: "))
+
+    def gpuSettings(self):
+        print("\nGPU settings")
+        confirm = input("Use GPU? (y/N): ")
+        if confirm == "y":
+            self.config["gpu"] = True
+        else:
+            self.config["gpu"] = False
+
+    def configLoad(self):
+        if os.path.exists("config.pickle"):
+            with open("config.pickle", "rb") as file:
+                self.config = pickle.load(file)
+                return True
+        return False
+
+    def configSave(self):
+        with open("config.pickle", "wb") as file:
+            pickle.dump(self.config, file)
