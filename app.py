@@ -43,27 +43,22 @@ class app:
         while True:
             try:
                 key = read_key()
-                if type(key) == str:
-                    self.messenger.warning("Invalid key")
-                    continue
-
-                key = int(key)
                 self.service = None
 
                 if self.cameraStarted is False:
                     self.messenger.info("Camera not started")
                     continue
 
-                if key == 8:  # key c
+                if key == config["key"]["c"]:  # key c
                     self.switchService("classificator", "detector")
 
-                elif key == 2:  # key d
+                elif key == config["key"]["d"]:  # key d
                     self.switchService("detector")
 
-                elif key == 15:  # key r
+                elif key == config["key"]["r"]:  # key r
                     self.switchService("recognizer")
 
-                elif key == 12:  # key q
+                elif key == config["key"]["q"]:  # key q
                     self.exit()
 
                 else:
@@ -85,14 +80,15 @@ class app:
 
         while not self.isExit:
             _, frame = self.cap.read()
-            cv2.imshow("Inference", frame)
+            cv2.imshow("Live View", frame)
+            cv2.waitKey(1)
 
             if self.services != []:
                 for service in self.services:
                     self.serviceObjects[service].run(frame)
 
     def run(self):
-        threading.Thread(target=self.keyCapture, daemon=True).start()
+        threading.Thread(target=self.keyCapture).start()
         self.main()
 
     def exit(self):

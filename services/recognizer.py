@@ -4,7 +4,7 @@ from easyocr import Reader
 class recognizer:
     def __init__(self, messenger, config):
         self.messenger = messenger
-        self.reader = Reader(["ko", "en"], gpu=False)
+        self.reader = Reader(["ko", "en"], gpu=config["gpu"])
 
     def run(self, frame):
         result = self.reader.readtext(frame, detail=0)
