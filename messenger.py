@@ -6,7 +6,6 @@ from glob import glob
 from io import BytesIO
 
 from gtts import gTTS
-from threading import Thread
 from string import punctuation
 from pydub import AudioSegment
 from pydub.playback import _play_with_simpleaudio
