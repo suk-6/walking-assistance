@@ -1,12 +1,14 @@
 import os
 import time
 import pickle
+from pprint import pprint
+from typing import Any
 from keyboard import read_key
 import torchvision.transforms as transforms
 from classificatorCNN import CustomClassifier
 
 
-class config:
+class configLoader:
     def __init__(self):
         self.root = os.getcwd()
         self.config = {
@@ -19,7 +21,7 @@ class config:
             },
             "key": {},
             "detector": {
-                "model": os.path.join(self.root, "models", "detector.pth"),
+                "model": os.path.join(self.root, "models", "detector.pt"),
                 "labels": [
                     "tree",
                     "car",
@@ -81,8 +83,30 @@ class config:
             self.configSettings()
             self.configSave()
 
+    def getConfig(self):
+        pprint(self.config)
+        return self.config
+
     def configSettings(self):
         self.keySettings()
+        self.garbege()
+        self.cameraSettings()
+        self.gpuSettings()
+        self.garbege()
+
+    def configLoad(self):
+        if os.path.exists("config.pickle"):
+            with open("config.pickle", "rb") as file:
+                self.config = pickle.load(file)
+                return True
+        return False
+
+    def configSave(self):
+        with open("config.pickle", "wb") as file:
+            pickle.dump(self.config, file)
+
+    def garbege(self):
+        input("\nPress 'Enter' key to continue...")
 
     def keySettings(self):
         for key in ["c", "d", "r", "q"]:
@@ -101,14 +125,3 @@ class config:
             self.config["gpu"] = True
         else:
             self.config["gpu"] = False
-
-    def configLoad(self):
-        if os.path.exists("config.pickle"):
-            with open("config.pickle", "rb") as file:
-                self.config = pickle.load(file)
-                return True
-        return False
-
-    def configSave(self):
-        with open("config.pickle", "wb") as file:
-            pickle.dump(self.config, file)

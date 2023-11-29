@@ -8,7 +8,7 @@ import sys
 import cv2
 import time
 import threading
-from config import config
+from config import configLoader
 from keyboard import read_key
 
 
@@ -24,7 +24,9 @@ class app:
         self.cameraStarted = False
         self.isExit = False
 
-        self.messenger = messenger(config)
+        self.config = configLoader().getConfig()
+
+        self.messenger = messenger(self.config)
 
     def str2class(self, classname):
         return getattr(sys.modules[__name__], classname)
@@ -35,7 +37,7 @@ class app:
         for service in services:
             if self.serviceObjects[service] is None:
                 self.serviceObjects[service] = self.str2class(service)(
-                    self.messenger, config
+                    self.messenger, self.config
                 )
             self.services.append(service)
 
@@ -49,16 +51,16 @@ class app:
                     self.messenger.info("Camera not started")
                     continue
 
-                if key == config["key"]["c"]:  # key c
+                if key == self.config["key"]["c"]:  # key c
                     self.switchService("classificator", "detector")
 
-                elif key == config["key"]["d"]:  # key d
+                elif key == self.config["key"]["d"]:  # key d
                     self.switchService("detector")
 
-                elif key == config["key"]["r"]:  # key r
+                elif key == self.config["key"]["r"]:  # key r
                     self.switchService("recognizer")
 
-                elif key == config["key"]["q"]:  # key q
+                elif key == self.config["key"]["q"]:  # key q
                     self.exit()
 
                 else:
@@ -72,9 +74,9 @@ class app:
     def main(self):
         self.messenger.info("Starting...")
 
-        self.cap = cv2.VideoCapture(config["camera"]["device"])
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, config["camera"]["width"])
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config["camera"]["height"])
+        self.cap = cv2.VideoCapture(self.config["camera"]["device"])
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.config["camera"]["width"])
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.config["camera"]["height"])
         self.cameraStarted = True
         self.messenger.info("Camera started")
 

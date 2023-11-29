@@ -24,6 +24,9 @@ class messenger:
 
         self.playbacks = []
 
+    def logger(self):
+        return self.LOGGER
+
     def info(self, msg, force=False):
         caller = inspect.currentframe().f_back.f_globals["__name__"]
         if caller == "__main__":
