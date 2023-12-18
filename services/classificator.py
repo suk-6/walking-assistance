@@ -3,9 +3,9 @@ import torch
 
 
 class classificator:
-    def __init__(self, messenger, config):
-        self.messenger = messenger
-        self.config = config
+    def __init__(self, params):
+        self.messenger = params["messenger"]
+        self.config = params["config"]
 
         self.transform = self.config["classificator"]["transform"]
 

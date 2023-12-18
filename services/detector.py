@@ -1,14 +1,16 @@
 import torch
+import cv2
 
 
 class detector:
-    def __init__(self, messenger, config):
-        self.messenger = messenger
-        self.config = config
+    def __init__(self, params):
+        self.messenger = params["messenger"]
+        self.config = params["config"]
+        self.image = params["image"]
         self.model = torch.hub.load(
             "./yolov5",
             "custom",
-            path=config["detector"]["model"],
+            path=self.config["detector"]["model"],
             source="local",
             force_reload=True,
         )
@@ -67,6 +69,25 @@ class detector:
 
         return annos
 
+    def imageSaver(self, frame, results):
+        indexs = []
+
+        for result in results:
+            if result["labelName"] in self.config["saveBoxes"]:
+                imageWidth = result["imageWidth"]
+                imageHeight = result["imageHeight"]
+
+                left = int(result["left"] * imageWidth)
+                top = int(result["top"] * imageHeight)
+                width = int(result["width"] * imageWidth)
+                height = int(result["height"] * imageHeight)
+
+                cropped = frame[top : top + height, left : left + width]
+                index = self.image.save(cropped)
+                indexs.append(index)
+
+        self.image.saveLastIndex(indexs)
+
     def run(self, frame, dual=False):
         self.dual = dual
         results = self.model(frame)
@@ -81,8 +102,6 @@ class detector:
         }
 
         results = self.resultParser(params)
+        self.imageSaver(frame, results)
 
-        if self.dual:
-            self.messenger.info(results, force=True)
-        else:
-            self.messenger.info(results)
+        self.messenger.info(results, force=self.dual)

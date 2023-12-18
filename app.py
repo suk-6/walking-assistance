@@ -2,6 +2,8 @@ from services.classificator import *
 from services.detector import *
 from services.recognizer import *
 
+from utils.image import Image
+
 from messenger import messenger
 
 import sys
@@ -25,8 +27,14 @@ class app:
         self.isExit = False
 
         self.config = configLoader().getConfig()
-
         self.messenger = messenger(self.config)
+        self.image = Image()
+
+        self.params = {
+            "config": self.config,
+            "messenger": self.messenger,
+            "image": self.image,
+        }
 
     def str2class(self, classname):
         return getattr(sys.modules[__name__], classname)
@@ -36,9 +44,7 @@ class app:
         self.messenger.info(" ".join(services))
         for service in services:
             if self.serviceObjects[service] is None:
-                self.serviceObjects[service] = self.str2class(service)(
-                    self.messenger, self.config
-                )
+                self.serviceObjects[service] = self.str2class(service)(self.params)
             self.services.append(service)
 
     def keyCapture(self):
