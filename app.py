@@ -2,15 +2,14 @@ from services.classificator import *
 from services.detector import *
 from services.recognizer import *
 
-from image import Image
-
-from messenger import messenger
+from utilities.image import Image
+from utilities.config import configLoader
+from utilities.messenger import messenger
 
 import sys
 import cv2
 import time
 import threading
-from config import configLoader
 from keyboard import read_key
 
 
