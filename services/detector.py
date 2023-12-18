@@ -86,7 +86,10 @@ class detector:
                 index = self.image.save(cropped)
                 indexs.append(index)
 
-        self.image.saveLastIndex(indexs)
+                self.messenger.warning(f"{result['labelName']}", tell=True)
+
+        if indexs != []:
+            self.image.saveLastIndex(indexs)
 
     def run(self, frame, dual=False):
         self.dual = dual

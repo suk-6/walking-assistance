@@ -40,8 +40,11 @@ class messenger:
         self.LOGGER.info(f"{caller}({force}) - {msg}")
         self.processing(msg, caller)  # Processing data by caller
 
-    def warning(self, msg):
+    def warning(self, msg, tell=False):
         self.LOGGER.warning(msg)
+
+        if tell:
+            self.ttsPrepare(msg)
 
     def error(self, msg):
         self.LOGGER.error(msg)
@@ -52,7 +55,7 @@ class messenger:
 
         elif caller == "detector":
             for data in msg:
-                if data["conf"] > 0.6:
+                if data["conf"] > 0.4:
                     if data["labelName"] in self.config["detector"]["printLabels"]:
                         self.LOGGER.info(f"{data['labelName']} {data['position']}")
                         self.ttsPrepare(f"{data['labelName']} {data['position']}")

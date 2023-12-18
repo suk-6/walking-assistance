@@ -2,7 +2,7 @@ from services.classificator import *
 from services.detector import *
 from services.recognizer import *
 
-from utils.image import Image
+from image import Image
 
 from messenger import messenger
 
@@ -93,7 +93,13 @@ class app:
 
             if self.services != []:
                 for service in self.services:
-                    self.serviceObjects[service].run(frame)
+                    if service == "recognizer" and self.image.getLastIndex() != []:
+                        self.messenger.info("저장된 이미지를 인식합니다.")
+                        for index in self.image.getLastIndex():
+                            frame = self.image.load(index)
+                            self.serviceObjects[service].run(frame)
+                    else:
+                        self.serviceObjects[service].run(frame)
 
     def run(self):
         threading.Thread(target=self.keyCapture).start()

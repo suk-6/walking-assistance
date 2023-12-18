@@ -77,6 +77,7 @@ class configLoader:
                 ),
                 "cnn": CustomClassifier(),
             },
+            "saveBoxes": ["sign_board"],
         }
 
         if self.configLoad() is False:
